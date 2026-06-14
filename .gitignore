@@ -1,0 +1,19 @@
+# Binarios compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Artefactos de test
+*.test
+*.out
+
+# Dependencias (si se usa vendor)
+/vendor/
+
+# IDE y sistema
+.idea/
+.vscode/
+.DS_Store
+.venv/
