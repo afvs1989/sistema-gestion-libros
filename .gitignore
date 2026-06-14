@@ -17,3 +17,10 @@
 .vscode/
 .DS_Store
 .venv/
+
+# Videos (subir por Drive/YouTube, no al repositorio)
+*.mov
+*.mp4
+*.avi
+*.mkv
+*.webm
