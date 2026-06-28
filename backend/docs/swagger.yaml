@@ -1,0 +1,619 @@
+basePath: /api
+definitions:
+  internal_adapter_inbound_http.AutorDTO:
+    properties:
+      apellido:
+        type: string
+      nombre:
+        type: string
+      pais:
+        type: string
+    type: object
+  internal_adapter_inbound_http.CrearLibroRequest:
+    properties:
+      anio:
+        type: integer
+      autorApellido:
+        type: string
+      autorNombre:
+        type: string
+      autorPais:
+        type: string
+      genero:
+        type: string
+      isbn:
+        type: string
+      titulo:
+        type: string
+    required:
+    - anio
+    - autorApellido
+    - autorNombre
+    - isbn
+    - titulo
+    type: object
+  internal_adapter_inbound_http.CrearRevistaRequest:
+    properties:
+      editorial:
+        type: string
+      numero:
+        type: integer
+      titulo:
+        type: string
+    required:
+    - numero
+    - titulo
+    type: object
+  internal_adapter_inbound_http.CrearUsuarioRequest:
+    properties:
+      email:
+        type: string
+      nombre:
+        type: string
+    required:
+    - email
+    - nombre
+    type: object
+  internal_adapter_inbound_http.LibroDTO:
+    properties:
+      anio:
+        type: integer
+      autor:
+        $ref: '#/definitions/internal_adapter_inbound_http.AutorDTO'
+      disponible:
+        type: boolean
+      fechaRegistro:
+        type: string
+      genero:
+        type: string
+      id:
+        type: string
+      isbn:
+        type: string
+      titulo:
+        type: string
+    type: object
+  internal_adapter_inbound_http.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  internal_adapter_inbound_http.PrestamoDTO:
+    properties:
+      activo:
+        type: boolean
+      fechaDevolucion:
+        type: string
+      fechaPrestamo:
+        type: string
+      id:
+        type: string
+      recursoId:
+        type: string
+      usuarioId:
+        type: string
+    type: object
+  internal_adapter_inbound_http.PrestamoRequest:
+    properties:
+      recursoId:
+        type: string
+      usuarioId:
+        type: string
+    required:
+    - recursoId
+    - usuarioId
+    type: object
+  internal_adapter_inbound_http.RecursoDTO:
+    properties:
+      descripcion:
+        type: string
+      disponible:
+        type: boolean
+      id:
+        type: string
+      titulo:
+        type: string
+    type: object
+  internal_adapter_inbound_http.RegistroRequest:
+    properties:
+      password:
+        type: string
+      rol:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  internal_adapter_inbound_http.TokenResponse:
+    properties:
+      expira:
+        type: string
+      rol:
+        type: string
+      tipo:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  internal_adapter_inbound_http.UsuarioDTO:
+    properties:
+      activo:
+        type: boolean
+      email:
+        type: string
+      id:
+        type: string
+      nombre:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact:
+    name: Valenzuela Saavedra Andrés Fernando — UIDE
+  description: |-
+    API REST del proyecto final de POO. Catálogo de libros y revistas,
+    usuarios (lectores) y préstamos, con autenticación JWT y persistencia
+    Code First sobre SQL Server. La serialización es JSON.
+  title: API Sistema de Gestión de Libros — Biblioteca UIDE
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Verifica las credenciales y devuelve un token JWT para autenticar
+        el resto de servicios.
+      parameters:
+      - description: Usuario y contraseña
+        in: body
+        name: credenciales
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_inbound_http.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_adapter_inbound_http.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Iniciar sesión (emite token JWT)
+      tags:
+      - Autenticación
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Crea una nueva cuenta (credencial) cifrando la contraseña con bcrypt.
+      parameters:
+      - description: Datos de la cuenta
+        in: body
+        name: cuenta
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_inbound_http.RegistroRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Registrar cuenta de acceso
+      tags:
+      - Autenticación
+  /catalogo/resumen:
+    get:
+      description: 'Informe agregado: totales de libros, recursos, disponibles y préstamos
+        activos.'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Resumen del catálogo
+      tags:
+      - Catálogo
+  /health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Estado del servicio
+      tags:
+      - Sistema
+  /libros:
+    get:
+      description: Devuelve el catálogo completo de libros.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_adapter_inbound_http.LibroDTO'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar libros
+      tags:
+      - Libros
+    post:
+      consumes:
+      - application/json
+      description: Crea un libro nuevo en el catálogo.
+      parameters:
+      - description: Datos del libro
+        in: body
+        name: libro
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_inbound_http.CrearLibroRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_adapter_inbound_http.LibroDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Registrar libro
+      tags:
+      - Libros
+  /libros/{id}:
+    delete:
+      parameters:
+      - description: ID del libro
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Eliminar libro
+      tags:
+      - Libros
+    get:
+      parameters:
+      - description: ID del libro
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_adapter_inbound_http.LibroDTO'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Obtener libro por ID
+      tags:
+      - Libros
+  /libros/buscar:
+    get:
+      description: Filtra libros por título o por autor (usa "autor" si viene; si
+        no, "titulo").
+      parameters:
+      - description: Texto a buscar en el título
+        in: query
+        name: titulo
+        type: string
+      - description: Texto a buscar en el autor
+        in: query
+        name: autor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_adapter_inbound_http.LibroDTO'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Buscar libros
+      tags:
+      - Libros
+  /prestamos:
+    post:
+      consumes:
+      - application/json
+      description: Registra el préstamo de un recurso (libro/revista) a un usuario.
+      parameters:
+      - description: IDs de recurso y usuario
+        in: body
+        name: prestamo
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_inbound_http.PrestamoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_adapter_inbound_http.PrestamoDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Prestar recurso
+      tags:
+      - Préstamos
+  /prestamos/activos:
+    get:
+      description: Lista los préstamos que siguen abiertos (sin devolver).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_adapter_inbound_http.PrestamoDTO'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Préstamos activos
+      tags:
+      - Préstamos
+  /prestamos/devolver/{recursoId}:
+    put:
+      description: Cierra el préstamo activo asociado a un recurso.
+      parameters:
+      - description: ID del recurso a devolver
+        in: path
+        name: recursoId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Devolver recurso
+      tags:
+      - Préstamos
+  /recursos/disponibles:
+    get:
+      description: Lista libros y revistas disponibles para préstamo (polimorfismo
+        Recurso).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_adapter_inbound_http.RecursoDTO'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Recursos disponibles
+      tags:
+      - Catálogo
+  /revistas:
+    post:
+      consumes:
+      - application/json
+      description: Crea una revista (otro tipo de Recurso catalogable).
+      parameters:
+      - description: Datos de la revista
+        in: body
+        name: revista
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_inbound_http.CrearRevistaRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_adapter_inbound_http.RecursoDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Registrar revista
+      tags:
+      - Catálogo
+  /usuarios:
+    get:
+      description: Devuelve los lectores registrados.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_adapter_inbound_http.UsuarioDTO'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Listar usuarios
+      tags:
+      - Usuarios
+    post:
+      consumes:
+      - application/json
+      description: Crea un lector nuevo.
+      parameters:
+      - description: Datos del usuario
+        in: body
+        name: usuario
+        required: true
+        schema:
+          $ref: '#/definitions/internal_adapter_inbound_http.CrearUsuarioRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_adapter_inbound_http.UsuarioDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Registrar usuario
+      tags:
+      - Usuarios
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    description: 'Autenticación JWT. Escribe: "Bearer {token}" (obtén el token en
+      POST /auth/login).'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

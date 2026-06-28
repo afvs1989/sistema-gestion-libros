@@ -12,9 +12,20 @@
 # Dependencias (si se usa vendor)
 /vendor/
 
+# Variables de entorno (credenciales) — usar .env.example como plantilla
+.env
+backend/.env
+
+# Frontend Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+node_modules/
+
 # IDE y sistema
 .idea/
 .vscode/
+.claude/
 .DS_Store
 .venv/
 

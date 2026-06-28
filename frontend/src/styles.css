@@ -1,0 +1,77 @@
+/* Estilos globales — tema Biblioteca UIDE */
+:root {
+  --azul: #1e3a5f;
+  --azul-claro: #2c5282;
+  --acento: #3182ce;
+  --verde: #2f855a;
+  --rojo: #c53030;
+  --gris: #f7fafc;
+  --gris-borde: #e2e8f0;
+  --texto: #2d3748;
+  --texto-suave: #718096;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--gris);
+  color: var(--texto);
+}
+
+h1, h2, h3 { margin: 0 0 0.5rem; }
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--acento);
+  color: #fff;
+  transition: background 0.15s, opacity 0.15s;
+}
+button:hover { background: var(--azul-claro); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.secundario { background: #edf2f7; color: var(--texto); }
+button.secundario:hover { background: #e2e8f0; }
+button.peligro { background: var(--rojo); }
+button.peligro:hover { background: #9b2c2c; }
+button.exito { background: var(--verde); }
+button.exito:hover { background: #276749; }
+
+input, select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--gris-borde);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #fff;
+  color: var(--texto);
+}
+input:focus, select:focus { outline: 2px solid var(--acento); border-color: var(--acento); }
+
+label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--texto-suave); margin-bottom: 0.3rem; }
+
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
+th, td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--gris-borde); font-size: 0.88rem; }
+th { background: var(--gris); color: var(--texto-suave); text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.04em; }
+tr:last-child td { border-bottom: none; }
+
+.tarjeta {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+.badge.ok { background: #c6f6d5; color: #22543d; }
+.badge.no { background: #fed7d7; color: #742a2a; }
+
+.alerta { padding: 0.7rem 1rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 1rem; }
+.alerta.error { background: #fed7d7; color: #742a2a; }
+.alerta.ok { background: #c6f6d5; color: #22543d; }
